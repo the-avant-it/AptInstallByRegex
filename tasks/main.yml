@@ -1,0 +1,15 @@
+---
+- become: yes
+  block:
+
+  - name: Install apt package
+    shell: >- 
+      apt-cache madison {{ apt_install_by_regex.package_name }} 
+      | grep -o "|.*|" 
+      | grep -o "[a-zA-Z0-9].*[a-zA-Z0-9]"
+      | grep {{ apt_install_by_regex.grep_flags }} "{{ apt_install_by_regex.package_version_regex }}" 
+      | tr -d '[:blank:]'
+      | xargs -I ARG /bin/sh -c "apt install -y {{ apt_install_by_regex.package_name }}=ARG"
+    notify: "{{ apt_install_by_regex.notify }}"
+    register: r
+    changed_when: '"0 upgraded, 0 newly installed, 0 to remove" not in r.stdout'
