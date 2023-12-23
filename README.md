@@ -4,6 +4,11 @@ Role for performing apt install with package version specified as regex. Very us
 
 # Changelog
 
+## 1.1.0
+
+- Add support for apt_extra_args
+- Fix critical bug when role installs all versions if multiple matched (newes will be installed)
+
 ## 1.0.0
 
 - Initial
