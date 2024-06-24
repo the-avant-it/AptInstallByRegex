@@ -15,3 +15,6 @@
     notify: "{{ apt_install_by_regex.notify }}"
     register: r
     changed_when: '"0 upgraded, 0 newly installed, 0 to remove" not in r.stdout'
+    until: "('stderr' not in r) or (apt_install_by_regex.apt_retry_on_stderr_containing not in r.stderr)"
+    retries: "{{ apt_install_by_regex.apt_retries | int }}"
+    delay: "{{ apt_install_by_regex.apt_retry_delay | int }}"  

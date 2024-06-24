@@ -1,4 +1,8 @@
 apt_install_by_regex:
+  apt_retries: 10
+  apt_retry_delay: 12
+  apt_retry_on_stderr_containing: "Could not get lock"
+  
   grep_flags: -oP
   notify: []
   apt_extra_args: ""
