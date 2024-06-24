@@ -4,9 +4,10 @@ Role for performing apt install with package version specified as regex. Very us
 
 # Changelog
 
-## 1.2.0
+## 1.2.1
 
 - Add apt retries
+- IMPORTANT: Change defaut value for apt_extra_args
 
 ## 1.1.0
 
@@ -17,7 +18,7 @@ Role for performing apt install with package version specified as regex. Very us
 
 - Initial
 
-# Documentation for 1.0.0
+# Documentation for 1.2.1
 
 ## Requirements
 
@@ -35,6 +36,15 @@ apt_install_by_regex:
   grep_flags: -oP
   # Optional. Which handlers to notify
   notify: []
+  
+  # Optional. Apt retry configuration
+  apt_retries: 10
+  apt_retry_delay: 12
+  apt_retry_on_stderr_containing: "Could not get lock"
+
+  # Optional. Default value is shown below:
+  apt_extra_args: --yes --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+
 ```  
 
 ### Secret
