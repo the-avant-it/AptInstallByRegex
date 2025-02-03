@@ -1,0 +1,6 @@
+---
+roles: 
+- src: git+ssh://git@gitlab.avant-it.ru/main/common/ansibleroles/common.common.git
+  scm: git
+  version: 1.9.6
+  name: common

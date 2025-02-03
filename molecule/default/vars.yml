@@ -1,0 +1,4 @@
+hide_secrtets_from_log: false
+apt_install_by_regex:
+  package_name: nginx
+  package_version_regex: "^1.18.*"
