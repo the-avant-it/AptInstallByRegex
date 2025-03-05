@@ -14,3 +14,25 @@
         that:
           - "'nginx/1.18' in nginx_version.stderr"
         fail_msg: "Nginx version is not 1.18"
+
+    - name: "Intersec errorse"
+      block:
+        - name: "Include test role"
+          ansible.builtin.include_role:
+            name: Common.AptInstallByRegex
+          vars:
+            apt_install_by_regex:
+              package_name: fake_package
+              package_version_regex: "^1.18.*"
+          register: role_result
+      rescue:
+        - name: "Role has been failed"
+          set_fact:
+            role_failed: true
+
+      always:
+        - name: Assert that role will be fail if the package can not be found
+          ansible.builtin.assert:
+            that: role_failed is defined and role_failed
+            success_msg: "Check if package can not be found"
+            fail_msg: "role wont terminated if there is an errors"

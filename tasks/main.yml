@@ -2,19 +2,45 @@
 - become: yes
   block:
 
-  - name: Install apt package
-    shell: >- 
-      apt-cache madison {{ apt_install_by_regex.package_name }} 
-      | grep -o "|.*|" 
-      | grep -o "[a-zA-Z0-9].*[a-zA-Z0-9]"
-      | grep {{ apt_install_by_regex.grep_flags }} "{{ apt_install_by_regex.package_version_regex }}" 
-      | tr -d '[:blank:]'
-      | sort --version-sort -r 
-      | head -n 1
-      | xargs -I ARG /bin/sh -c "apt install {{ apt_install_by_regex.apt_extra_args }} -y {{ apt_install_by_regex.package_name }}=ARG"
-    notify: "{{ apt_install_by_regex.notify }}"
-    register: r
-    changed_when: '"0 upgraded, 0 newly installed, 0 to remove" not in r.stdout'
-    until: "('stderr' not in r) or (apt_install_by_regex.apt_retry_on_stderr_containing not in r.stderr)"
+#  - name: Install apt package
+#    shell: >- 
+#      apt-cache madison {{ apt_install_by_regex.package_name }} 
+#      | grep -o "|.*|" 
+#      | grep -o "[a-zA-Z0-9].*[a-zA-Z0-9]"
+#      | grep {{ apt_install_by_regex.grep_flags }} "{{ apt_install_by_regex.package_version_regex }}" 
+#      | tr -d '[:blank:]'
+#      | sort --version-sort -r 
+#      | head -n 1
+#      | xargs -I ARG /bin/sh -c "apt install {{ apt_install_by_regex.apt_extra_args }} -y {{ apt_install_by_regex.package_name }}=ARG"
+#    notify: "{{ apt_install_by_regex.notify }}"
+#    register: r
+#    changed_when: '"0 upgraded, 0 newly installed, 0 to remove" not in r.stdout'
+#    until: "('stderr' not in r) or (apt_install_by_regex.apt_retry_on_stderr_containing not in r.stderr)"
+#    retries: "{{ apt_install_by_regex.apt_retries | int }}"
+#    delay: "{{ apt_install_by_regex.apt_retry_delay | int }}"  
+
+  - name: Update APT cache
+    ansible.builtin.apt:
+      update_cache: yes
+    changed_when: false
+
+  - name: Get packages versions for {{ apt_install_by_regex.package_name }}
+    ansible.builtin.shell: |
+      apt-cache madison {{ apt_install_by_regex.package_name }} | awk '{print $3}' | grep -P '{{ apt_install_by_regex.package_version_regex }}' | sort -V | tail -n1
+    register: available_version
+    changed_when: false
+    failed_when: available_version.rc != 0
+
+  - name: Check if version of the package is exist
+    ansible.builtin.fail:
+      msg: "There are no available package {{ apt_install_by_regex.package_name }} with version {{ apt_install_by_regex.package_version_regex }}"
+    when: available_version.stdout | length == 0
+
+  - name: Install {{ apt_install_by_regex.package_name }} version {{ available_version.stdout }}
+    ansible.builtin.apt:
+      name: "{{ apt_install_by_regex.package_name }}={{ available_version.stdout }}"
+      state: present
+    register: install_result
+    until: install_result is success
     retries: "{{ apt_install_by_regex.apt_retries | int }}"
-    delay: "{{ apt_install_by_regex.apt_retry_delay | int }}"  
+    delay: "{{ apt_install_by_regex.apt_retry_delay | int }}"
