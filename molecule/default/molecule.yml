@@ -4,8 +4,8 @@ dependency:
   options:
     ignore-certs: True
     ignore-errors: True
-#    role-file: molecule/default/requirements.yml
-    role-file: requirements.yml
+    role-file: molecule/default/requirements.yml
+#    role-file: requirements.yml
 driver:
 #pip install molecule-hetznercloud --break-system-packages
 #pip install hcloud --break-system-packages
