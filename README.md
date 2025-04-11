@@ -4,6 +4,9 @@ Role for performing apt install with package version specified as regex. Very us
 
 # Changelog
 
+## 1.2.2
+some fixes
+
 ## 1.2.1
 
 - Add apt retries
